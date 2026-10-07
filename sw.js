@@ -1,6 +1,6 @@
 importScripts('js/db.js', 'js/sync.js');
 
-const CACHE_NAME = 'archivos-v2';
+const CACHE_NAME = 'archivos-v3';
 const ICONO_DEFAULT = './img/icons/default.png';
 const APP_SHELL = [
     './',
