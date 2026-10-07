@@ -136,18 +136,41 @@ function mostrarResultado(resultado) {
     }
 }
 
-async function ejecutarSync() {
-    syncBtn.disabled = true;
-    mensaje.textContent = 'Sincronizando…';
-    try {
-        const resultado = await sincronizar();
-        mostrarResultado(resultado);
-        await notificar(resultado);
-    } catch (error) {
-        mensaje.textContent = 'No se pudo conectar. Se reintentará cuando haya red.';
+let syncEnCurso = null;
+let repetirSync = false;
+
+// Si llega otra petición mientras se sincroniza, se repite al terminar
+// y se muestra un solo resultado con la suma.
+function ejecutarSync() {
+    if (syncEnCurso) {
+        repetirSync = true;
+        return syncEnCurso;
     }
-    syncBtn.disabled = false;
-    await pintar();
+
+    syncEnCurso = (async () => {
+        const total = { subidos: 0, descargados: 0, borrados: 0, sinToken: false, errores: [] };
+        syncBtn.disabled = true;
+        mensaje.textContent = 'Sincronizando…';
+        try {
+            do {
+                repetirSync = false;
+                const resultado = await sincronizar();
+                total.subidos += resultado.subidos;
+                total.descargados += resultado.descargados;
+                total.borrados += resultado.borrados;
+                total.sinToken = resultado.sinToken;
+                total.errores = resultado.errores;
+            } while (repetirSync);
+            mostrarResultado(total);
+            await notificar(total);
+        } catch (error) {
+            mensaje.textContent = 'No se pudo conectar. Se reintentará cuando haya red.';
+        }
+        syncBtn.disabled = false;
+        syncEnCurso = null;
+        await pintar();
+    })();
+    return syncEnCurso;
 }
 
 // Con red se sincroniza ya; sin red se deja encargado al Service Worker.
@@ -231,7 +254,8 @@ if ('serviceWorker' in navigator) {
     // El SW avisa cuando terminó un Background Sync
     navigator.serviceWorker.addEventListener('message', (e) => {
         if (e.data && e.data.tipo === 'sync') {
-            mostrarResultado(e.data.resultado);
+            const resultado = e.data.resultado;
+            if (resumen(resultado) || resultado.errores.length) mostrarResultado(resultado);
             pintar();
         }
     });
