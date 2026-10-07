@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mis Archivos</title>
+
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="img/icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <img src="img/icons/icon-96x96.png" alt="" width="40" height="40">
+        <h1>Mis Archivos</h1>
+        <span id="estado-red" class="chip"></span>
+    </header>
+
+    <main>
+        <section class="acciones">
+            <label class="boton primario">
+                Agregar archivos
+                <input id="entrada" type="file" multiple hidden>
+            </label>
+            <button id="sync-btn" class="boton">Sincronizar</button>
+            <button id="notif-btn" class="boton">Activar notificaciones</button>
+        </section>
+
+        <p id="mensaje" role="status"></p>
+
+        <ul id="lista"></ul>
+        <p id="vacio" class="tenue">Aún no hay archivos. Agrega uno: si no hay red se sube en cuanto vuelva.</p>
+
+        <details id="config">
+            <summary>Configuración del repositorio</summary>
+            <form id="config-form">
+                <label>Repositorio (usuario/repo)
+                    <input name="repo" required pattern="[^/\s]+/[^/\s]+">
+                </label>
+                <label>Rama
+                    <input name="rama" required>
+                </label>
+                <label>Token de GitHub (solo para subir y borrar)
+                    <input name="token" type="password" autocomplete="off" placeholder="github_pat_…">
+                </label>
+                <p class="tenue">
+                    El token se guarda solo en este dispositivo. Usa uno <em>fine-grained</em>
+                    limitado a ese repositorio con permiso <strong>Contents: Read and write</strong>.
+                </p>
+                <button class="boton primario">Guardar</button>
+            </form>
+        </details>
+
+        <details>
+            <summary>Lo visto en clase</summary>
+            <ul class="repaso">
+                <li><strong>Manifest:</strong> iconos en todos los tamaños, maskable y uno por defecto.</li>
+                <li><strong>Service Worker:</strong> app shell en cache; estrategia <em>network first</em> y, si no hay red, cache.</li>
+                <li><strong>Icono por defecto:</strong> si una imagen falta, el SW responde <code>default.png</code>.</li>
+                <li><strong>IndexedDB:</strong> los archivos se guardan aquí para usarlos sin red.</li>
+                <li><strong>Background Sync:</strong> lo pendiente se sube al recuperar la conexión.</li>
+                <li><strong>Notificaciones:</strong> avisan cuando termina una sincronización.</li>
+            </ul>
+        </details>
+    </main>
+
+    <script src="js/db.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
